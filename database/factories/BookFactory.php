@@ -30,8 +30,7 @@ class BookFactory extends Factory
             'publisher_id' => Publisher::factory(),
             'title' => $this->faker->text(rand(25, 50)),
             'description' => $this->faker->paragraph(5),
-            'rating' => $this->faker->numberBetween(0, 30000),
-
+            'rating' => 0,
         ];
     }
 }
