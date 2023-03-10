@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\BooksController;
+use App\Models\Book;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,3 +29,5 @@ Route::middleware('auth:cms-api')->group(static function () {
 Route::apiResource('/books', 'BooksController');
 Route::apiResource('/authors', 'AuthorsController');
 Route::apiResource('/publishers', 'PublishersController');
+
+Route::apiResource('/reviews', 'ReviewsController');

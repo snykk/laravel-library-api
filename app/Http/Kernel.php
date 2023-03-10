@@ -48,10 +48,10 @@ class Kernel extends HttpKernel
         ],
 
         'cms-api' => [
-            // AcceptOnlyJson::class,
-            // EnsureFrontendRequestsAreStateful::class,
-            // 'throttle:60,1',
-            // \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            AcceptOnlyJson::class,
+            EnsureFrontendRequestsAreStateful::class,
+            'throttle:60,1',
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
 

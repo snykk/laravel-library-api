@@ -126,6 +126,9 @@ class BooksController extends Controller
      */
     public function show(BookBuilder $query, Book $book): BookResource
     {
+        // return response()->json([
+        //     "book" => $book
+        // ], 200);
         return new BookResource($query->find($book->getKey()));
     }
 

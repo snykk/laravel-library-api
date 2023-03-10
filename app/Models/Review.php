@@ -2,26 +2,16 @@
 
 namespace App\Models;
 
-use App\Models\Author;
-use App\Models\Publisher;
+use App\Models\Book;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Book extends Model
+class Review extends Model
 // Interface implementation
 {
-    use HasFactory;
-
-    protected $keyType = 'int';
-
-    protected $casts = [
-        'id' => 'int',
-    ];
-
-    protected $guarded = ['id'];
-
-    // Used traits declaration
+// Used traits declaration
     /**
      * The attributes that should be mutated to dates.
      *
@@ -38,33 +28,32 @@ class Book extends Model
      * @var string[]
      */
     protected $fillable = [
-        'title',
-        'description',
+        'comment',
         'rating',
-        'author_id',
-        'publisher_id',
+        'user_id',
+        'book_id',
     ];
-    // Model accessors declaration
+// Model accessors declaration
 
     /**
      * Model relationship definition.
-     * Book belongs to Author
+     * Review belongs to Book
      *
      * @return BelongsTo
      */
-    public function author(): BelongsTo
+    public function book(): BelongsTo
     {
-        return $this->belongsTo(Author::class);
+        return $this->belongsTo(Book::class);
     }
 
     /**
      * Model relationship definition.
-     * Book belongs to Publisher
+     * Review belongs to User
      *
      * @return BelongsTo
      */
-    public function publisher(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(Publisher::class);
+        return $this->belongsTo(User::class);
     }
 }

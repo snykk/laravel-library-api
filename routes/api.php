@@ -13,6 +13,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::apiResource('/books', 'BooksController');
-Route::apiResource('/authors', 'AuthorsController');
-Route::apiResource('/publishers', 'PublishersController');
+// Route::apiResource('/books', 'BooksController');
+// Route::apiResource('/authors', 'AuthorsController');
+// Route::apiResource('/publishers', 'PublishersController');

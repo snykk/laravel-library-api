@@ -96,7 +96,7 @@ class RouteServiceProvider extends ServiceProvider
         Route::prefix('cms-api/auth')
             ->name('cms-api.auth.')
             ->middleware('web')
-            ->namespace($this->namespace.'\\CmsAuth')
+            ->namespace($this->namespace . '\\CmsAuth')
             ->group(base_path('routes/cms-auth.php'));
     }
 }
