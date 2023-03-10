@@ -11,6 +11,7 @@ use App\Models\User;
 use App\QueryBuilders\ReviewBuilder;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -131,9 +132,9 @@ class ReviewsController extends Controller
             return $resource->toResponse($request)->setStatusCode(201);
         } catch (Exception $e) {
             DB::rollback();
-            throw response()->json([
+            return response()->json([
                 "message" => "an error occure when try to create a reviews",
-                "errors" => $e,
+                "errors" => $e->getMessage(),
             ], 500);
         }
     }
@@ -213,11 +214,44 @@ class ReviewsController extends Controller
      *
      * @return ReviewResource
      */
-    public function destroy(Review $review): ReviewResource
+    public function destroy(Review $review)
     {
-        $review->delete();
+        // start a transaction
+        DB::beginTransaction();
 
-        return (new ReviewResource($review))
-            ->additional(['info' => 'The review has been deleted.']);
+        try {
+            if ($review->user_id !== auth()->user()->id) {
+                return response()->json([
+                    "message" => "you have no access to delete this reviews",
+                ], 403);
+            }
+
+            $review->delete();
+
+            // get rating of certain book
+            $rating = Review::where('book_id', $review->book_id)
+                ->avg('rating');
+
+            // update book rating
+            $book = Book::where('id', $review->book_id)->first();
+            $book->rating = $rating ?? 0;
+            $book->save();
+
+            // update user rating
+            $user = User::where('id', $review->user_id)->first();
+            $user->reviews -= 1;
+            $user->save();
+
+            DB::commit();
+
+            return (new ReviewResource($review))
+                ->additional(['info' => 'The review has been deleted.']);
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json([
+                "message" => "an error occure when try to delete a reviews",
+                "errors" => $e->getMessage(),
+            ], 500);
+        }
     }
 }
