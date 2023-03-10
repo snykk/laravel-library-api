@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ReviewSaveRequest;
 use App\Http\Resources\ReviewCollection;
 use App\Http\Resources\ReviewResource;
+use App\Models\Book;
 use App\Models\Review;
+use App\Models\User;
 use App\QueryBuilders\ReviewBuilder;
+use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @group Review Management
@@ -68,7 +72,7 @@ class ReviewsController extends Controller
      *
      * @return ReviewCollection
      */
-    public function index(ReviewBuilder $query): ReviewCollection
+    public function index(ReviewBuilder $query)
     {
         return new ReviewCollection($query->paginate());
     }
@@ -86,13 +90,42 @@ class ReviewsController extends Controller
      */
     public function store(ReviewSaveRequest $request, Review $review): JsonResponse
     {
-        $review->fill($request->only($review->offsetGet('fillable')))
-            ->save();
+        // start a transaction
+        DB::beginTransaction();
 
-        $resource = (new ReviewResource($review))
-            ->additional(['info' => 'The new review has been saved.']);
+        try {
+            $review->fill($request->only($review->offsetGet('fillable')));
 
-        return $resource->toResponse($request)->setStatusCode(201);
+            $review->user_id = auth()->user()->id;
+            $review->save();
+
+            // get rating of certain book
+            $rating = Review::where('book_id', $review->book_id)
+                ->avg('rating');
+
+            // update book rating
+            $book = Book::where('id', $review->book_id)->first();
+            $book->rating = $rating;
+            $book->save();
+
+            // update user rating
+            $user = User::where('id', $review->user_id)->first();
+            $user->reviews += 1;
+            $user->save();
+
+            DB::commit();
+
+            $resource = (new ReviewResource($review))
+                ->additional(['info' => 'The new review has been saved.']);
+
+            return $resource->toResponse($request)->setStatusCode(201);
+        } catch (Exception $e) {
+            DB::rollback();
+            throw response()->json([
+                "message" => "an error occure when try to create a reviews",
+                "errors" => $e,
+            ], 500);
+        }
     }
 
     /**

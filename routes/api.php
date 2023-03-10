@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 
+Route::prefix("/auth")->group(function () {
+  Route::post("/login", "AuthController@login");
+  Route::post("/logout", "AuthController@login")->middleware("auth:santcum");
+});
+
 // Route::apiResource('/books', 'BooksController');
 // Route::apiResource('/authors', 'AuthorsController');
 // Route::apiResource('/publishers', 'PublishersController');

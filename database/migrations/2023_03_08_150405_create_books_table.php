@@ -17,7 +17,7 @@ class CreateBooksTable extends Migration
             $table->bigIncrements('id')->unsigned();
             $table->string('title', 50);
             $table->text('description');
-            $table->smallInteger('rating')->unsigned();
+            $table->unsignedDecimal('rating');
             $table->bigInteger('author_id')->unsigned();
             $table->bigInteger('publisher_id')->unsigned();
             $table->dateTime('created_at')->nullable();
@@ -32,7 +32,6 @@ class CreateBooksTable extends Migration
                 ->references('id')
                 ->on('publishers')
                 ->onDelete('cascade');
-
         });
     }
 
