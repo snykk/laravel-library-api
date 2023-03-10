@@ -97,6 +97,16 @@ class ReviewsController extends Controller
             $review->fill($request->only($review->offsetGet('fillable')));
 
             $review->user_id = auth()->user()->id;
+            $userReview = Review::where('user_id', $review->user_id)
+                ->where('book_id', $review->book_id)
+                ->first();
+
+            if ($userReview) {
+                return response()->json([
+                    "message" => "user already make a review on this book",
+                ], 400);
+            }
+
             $review->save();
 
             // get rating of certain book
