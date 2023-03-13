@@ -11,7 +11,6 @@ use App\Models\User;
 use App\QueryBuilders\ReviewBuilder;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -77,6 +76,12 @@ class ReviewsController extends Controller
     {
 
         return new ReviewCollection($query->paginate());
+    }
+
+
+    public function userReview(ReviewBuilder $query): ReviewCollection
+    {
+        return new ReviewCollection($query->getUserReview((int) auth()->user()->id));
     }
 
     /**

@@ -9,7 +9,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 final class ReviewBuilder extends Builder
 {
-// Used traits declaration
+    // Used traits declaration
     /**
      * Current HTTP Request object.
      *
@@ -160,5 +160,10 @@ final class ReviewBuilder extends Builder
     protected function getDefaultSort(): string
     {
         return 'id';
+    }
+
+    public function getUserReview($user_id)
+    {
+        return $this->query()->where('user_id', '=', $user_id)->jsonPaginate();
     }
 }
