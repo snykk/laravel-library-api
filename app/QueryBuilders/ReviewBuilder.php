@@ -162,8 +162,8 @@ final class ReviewBuilder extends Builder
         return 'id';
     }
 
-    public function getUserReview($user_id)
+    public function getUserReview($user_id, $length = 30)
     {
-        return $this->query()->where('user_id', '=', $user_id)->jsonPaginate();
+        return $this->query()->where('user_id', '=', $user_id)->jsonPaginate($length);
     }
 }

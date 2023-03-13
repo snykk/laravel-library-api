@@ -96,9 +96,9 @@ abstract class Builder
      *
      * @return LengthAwarePaginator
      */
-    public function paginate(): LengthAwarePaginator
+    public function paginate($length = 30): LengthAwarePaginator
     {
-        return $this->query()->jsonPaginate();
+        return $this->query()->jsonPaginate($length);
     }
 
     /**

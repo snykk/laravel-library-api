@@ -75,13 +75,13 @@ class ReviewsController extends Controller
     public function index(ReviewBuilder $query): ReviewCollection
     {
 
-        return new ReviewCollection($query->paginate());
+        return new ReviewCollection($query->paginate(length: 10));
     }
 
 
     public function userReview(ReviewBuilder $query): ReviewCollection
     {
-        return new ReviewCollection($query->getUserReview((int) auth()->user()->id));
+        return new ReviewCollection($query->getUserReview((int) auth()->user()->id, length: 10));
     }
 
     /**
