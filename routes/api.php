@@ -22,5 +22,8 @@ Route::apiResource('/books', 'BooksController');
 Route::apiResource('/authors', 'AuthorsController');
 Route::apiResource('/publishers', 'PublishersController');
 
-Route::get("/reviews/my-review", "ReviewsController@userReview")->middleware("auth:sanctum");
-Route::apiResource('/reviews', 'ReviewsController')->middleware("auth:sanctum");
+
+Route::middleware(["auth:sanctum"])->group(function () {
+  Route::get("/reviews/my-review", "ReviewsController@userReview");
+  Route::apiResource('/reviews', 'ReviewsController');
+});
