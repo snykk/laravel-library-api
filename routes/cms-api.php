@@ -25,9 +25,3 @@ Route::middleware('auth:cms-api')->group(static function () {
     Route::apiResource('/cms_admins', 'CmsAdminsController');
     Route::apiResource('/seo_metas', 'SeoMetasController');
 });
-
-Route::apiResource('/books', 'BooksController');
-Route::apiResource('/authors', 'AuthorsController');
-Route::apiResource('/publishers', 'PublishersController');
-
-Route::apiResource('/reviews', 'ReviewsController')->middleware("auth:sanctum");

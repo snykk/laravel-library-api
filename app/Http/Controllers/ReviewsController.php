@@ -73,8 +73,9 @@ class ReviewsController extends Controller
      *
      * @return ReviewCollection
      */
-    public function index(ReviewBuilder $query)
+    public function index(ReviewBuilder $query): ReviewCollection
     {
+
         return new ReviewCollection($query->paginate());
     }
 

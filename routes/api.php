@@ -18,6 +18,8 @@ Route::prefix("/auth")->group(function () {
   Route::post("/logout", "AuthController@login")->middleware("auth:santcum");
 });
 
-// Route::apiResource('/books', 'BooksController');
-// Route::apiResource('/authors', 'AuthorsController');
-// Route::apiResource('/publishers', 'PublishersController');
+Route::apiResource('/books', 'BooksController');
+Route::apiResource('/authors', 'AuthorsController');
+Route::apiResource('/publishers', 'PublishersController');
+
+Route::apiResource('/reviews', 'ReviewsController')->middleware("auth:sanctum");

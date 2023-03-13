@@ -68,7 +68,7 @@ class BooksController extends Controller
      *
      * @return BookCollection
      */
-    public function index(BookBuilder $query)
+    public function index(BookBuilder $query): BookCollection
     {
         return new BookCollection($query->paginate(10));
     }
