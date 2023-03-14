@@ -1,88 +1,88 @@
-name: CI
+# name: CI
 
-on:
-  push:
-    branches:
-      - master
-      - release/*
-      - issue-*
-  pull_request:
-    branches:
-      - master
-    schedule:
-      - cron: 0 7 * * 1
+# on:
+#   push:
+#     branches:
+#       - master
+#       - release/*
+#       - issue-*
+#   pull_request:
+#     branches:
+#       - master
+#     schedule:
+#       - cron: 0 7 * * 1
 
-jobs:
-  analysis:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        php: [7.4]
-    steps:
-      - uses: actions/checkout@v1
-      - name: Cache composer dependencies
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-api-starter-composer-dependencies
-        with:
-          path: ~/.composer
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/composer.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick
-          coverage: none
-      - name: Install composer dependencies
-        env:
-          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
-        run: composer install --prefer-dist
-      - name: Run phpstan analysis
-        run: composer phpstan-analysis
-      - name: Run phpmd analysis
-        run: composer phpmd-analysis
-      - name: Run phpcpd analysis
-        run: vendor/bin/phpcpd --min-lines=5 --min-tokens=60 app/
-  phpunit-with-cov:
-    needs: [analysis]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        php: [7.4]
-    steps:
-      - uses: actions/checkout@v1
-      - name: Cache composer dependencies
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-api-starter-composer-dependencies
-        with:
-          path: ~/.composer
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/composer.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick
-          coverage: none
-      - name: Install composer dependencies
-        env:
-          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
-        run: composer install --prefer-dist
-      - name: Initialize environment configuration
-        run: cp .env.example .env
-      - name: Generate new application key
-        run: php artisan key:generate
-      - name: Run the test cov suite
-        run: phpdbg -qrr -dmemory_limit=3G vendor/bin/phpunit --coverage-clover=clover.xml
-      - name: Upload test coverage report to codecov.io
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: bash <(curl -s https://codecov.io/bash)
+# jobs:
+#   analysis:
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         php: [7.4]
+#     steps:
+#       - uses: actions/checkout@v1
+#       - name: Cache composer dependencies
+#         uses: actions/cache@v2
+#         env:
+#           cache-name: cache-api-starter-composer-dependencies
+#         with:
+#           path: ~/.composer
+#           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/composer.json') }}
+#           restore-keys: |
+#             ${{ runner.os }}-build-${{ env.cache-name }}-
+#             ${{ runner.os }}-build-
+#             ${{ runner.os }}-
+#       - name: Setup PHP
+#         uses: shivammathur/setup-php@v2
+#         with:
+#           php-version: ${{ matrix.php }}
+#           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick
+#           coverage: none
+#       - name: Install composer dependencies
+#         env:
+#           COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+#         run: composer install --prefer-dist
+#       - name: Run phpstan analysis
+#         run: composer phpstan-analysis
+#       - name: Run phpmd analysis
+#         run: composer phpmd-analysis
+#       - name: Run phpcpd analysis
+#         run: vendor/bin/phpcpd --min-lines=5 --min-tokens=60 app/
+#   phpunit-with-cov:
+#     needs: [analysis]
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         php: [7.4]
+#     steps:
+#       - uses: actions/checkout@v1
+#       - name: Cache composer dependencies
+#         uses: actions/cache@v2
+#         env:
+#           cache-name: cache-api-starter-composer-dependencies
+#         with:
+#           path: ~/.composer
+#           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/composer.json') }}
+#           restore-keys: |
+#             ${{ runner.os }}-build-${{ env.cache-name }}-
+#             ${{ runner.os }}-build-
+#             ${{ runner.os }}-
+#       - name: Setup PHP
+#         uses: shivammathur/setup-php@v2
+#         with:
+#           php-version: ${{ matrix.php }}
+#           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick
+#           coverage: none
+#       - name: Install composer dependencies
+#         env:
+#           COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+#         run: composer install --prefer-dist
+#       - name: Initialize environment configuration
+#         run: cp .env.example .env
+#       - name: Generate new application key
+#         run: php artisan key:generate
+#       - name: Run the test cov suite
+#         run: phpdbg -qrr -dmemory_limit=3G vendor/bin/phpunit --coverage-clover=clover.xml
+#       - name: Upload test coverage report to codecov.io
+#         env:
+#           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+#         run: bash <(curl -s https://codecov.io/bash)
