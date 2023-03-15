@@ -195,14 +195,31 @@ class ReviewsController extends Controller
      */
     public function update(ReviewSaveRequest $request, Review $review): ReviewResource
     {
-        $review->fill($request->only($review->offsetGet('fillable')));
+        try {
+            $review->fill($request->only($review->offsetGet('fillable')));
 
-        if ($review->isDirty()) {
-            $review->save();
+            if ($review->isDirty()) {
+                $review->save();
+            }
+
+            // get rating of certain book
+            $rating = Review::where('book_id', $review->book_id)
+                ->avg('rating');
+
+            // update book rating
+            $book = Book::where('id', $review->book_id)->first();
+            $book->rating = $rating;
+            $book->save();
+
+            return (new ReviewResource($review))
+                ->additional(['info' => 'The review has been updated.']);
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json([
+                "message" => "an error occure when try to delete a reviews",
+                "errors" => $e->getMessage(),
+            ], 500);
         }
-
-        return (new ReviewResource($review))
-            ->additional(['info' => 'The review has been updated.']);
     }
 
     /**
