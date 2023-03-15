@@ -195,6 +195,9 @@ class ReviewsController extends Controller
      */
     public function update(ReviewSaveRequest $request, Review $review): ReviewResource
     {
+        // start a transaction
+        DB::beginTransaction();
+
         try {
             $review->fill($request->only($review->offsetGet('fillable')));
 
