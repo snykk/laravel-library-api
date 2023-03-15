@@ -6,7 +6,7 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class RentalCollection extends ResourceCollection
 {
-// Used traits declaration
+    // Used traits declaration
     /**
      * Transform the resource collection into an array.
      *
@@ -16,6 +16,6 @@ class RentalCollection extends ResourceCollection
      */
     public function toArray($request)
     {
-// To array logic
+        return parent::toArray($request);
     }
 }
