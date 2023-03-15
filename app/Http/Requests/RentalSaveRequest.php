@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\Forbidden;
 use Illuminate\Foundation\Http\FormRequest;
 
 class RentalSaveRequest extends FormRequest
@@ -14,7 +15,7 @@ class RentalSaveRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
-//        return (auth()->guard('api')->check() || auth()->guard('cms-api')->check());
+        //        return (auth()->guard('api')->check() || auth()->guard('cms-api')->check());
     }
 
     /**
@@ -25,13 +26,13 @@ class RentalSaveRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|integer|between:0,18446744073709551615',
+            'user_id' => new Forbidden(),
             'book_id' => 'required|integer|between:0,18446744073709551615',
-            'rental_date' => 'required|date',
-            'rental_duration' => 'required|integer|between:-2147483647,2147483647',
-            'return_date' => 'required|date',
-            'status' => 'required|string|min:2|max:20',
-            'is_due' => 'required|boolean',
+            'rental_date' => new Forbidden(),
+            'rental_duration' => new Forbidden(),
+            'return_date' => new Forbidden(),
+            'status' => new Forbidden(),
+            'is_due' => new Forbidden(),
         ];
     }
 }

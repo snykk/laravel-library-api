@@ -9,7 +9,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 final class RentalBuilder extends Builder
 {
-// Used traits declaration
+    // Used traits declaration
     /**
      * Current HTTP Request object.
      *
@@ -174,5 +174,10 @@ final class RentalBuilder extends Builder
     protected function getDefaultSort(): string
     {
         return 'id';
+    }
+
+    public function getUserRental($user_id, $length = 30)
+    {
+        return $this->query()->where('user_id', '=', $user_id)->jsonPaginate($length);
     }
 }

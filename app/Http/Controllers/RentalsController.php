@@ -5,9 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RentalSaveRequest;
 use App\Http\Resources\RentalCollection;
 use App\Http\Resources\RentalResource;
+use App\Models\Book;
 use App\Models\Rental;
 use App\QueryBuilders\RentalBuilder;
+use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+
 
 /**
  * @group Rental Management
@@ -21,7 +26,7 @@ class RentalsController extends Controller
      *
      * @var bool
      */
-    protected static $requireAuthorization = true;
+    protected static $requireAuthorization = false;
 
     /**
      * RentalsController constructor.
@@ -70,7 +75,7 @@ class RentalsController extends Controller
      */
     public function index(RentalBuilder $query): RentalCollection
     {
-        return new RentalCollection($query->paginate());
+        return new RentalCollection($query->getUserRental(auth()->user()->id, 5));
     }
 
     /**
@@ -86,13 +91,40 @@ class RentalsController extends Controller
      */
     public function store(RentalSaveRequest $request, Rental $rental): JsonResponse
     {
-        $rental->fill($request->only($rental->offsetGet('fillable')))
-            ->save();
+        // start a transaction
+        DB::beginTransaction();
 
-        $resource = (new RentalResource($rental))
-            ->additional(['info' => 'The new rental has been saved.']);
+        try {
+            $rental->fill($request->only($rental->offsetGet('fillable')));
 
-        return $resource->toResponse($request)->setStatusCode(201);
+            // get book 
+            $book = Book::where('id', $rental->book_id)->first();
+
+            if ($book->available === 0) {
+                return response()->json([
+                    "message" => "book is not available right now!!!",
+                ], 200);
+            }
+
+            $rental->user_id = auth()->user()->id;
+            $rental->rental_date = Carbon::now('Asia/Jakarta');
+            $rental->rental_duration = 7;
+            $rental->status = "borrowed";
+            $rental->save();
+
+            DB::commit();
+
+            $resource = (new RentalResource($rental))
+                ->additional(['info' => 'The new rental has been saved.']);
+
+            return $resource->toResponse($request)->setStatusCode(201);
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json([
+                "message" => "an error occure when try to delete a reviews",
+                "errors" => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
