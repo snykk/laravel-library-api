@@ -26,5 +26,5 @@ Route::apiResource('/publishers', 'PublishersController');
 Route::middleware(["auth:sanctum"])->group(function () {
   Route::get("/reviews/my-review", "ReviewsController@userReview");
   Route::apiResource('/reviews', 'ReviewsController');
-  Route::apiResource('/rentals', 'RentalsController');
+  Route::apiResource('/rentals', 'RentalsController')->only(["index", "store"]);
 });
