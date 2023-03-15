@@ -19,9 +19,9 @@ class CreateRentalsTable extends Migration
             $table->bigInteger('book_id')->unsigned();
             $table->dateTime('rental_date');
             $table->integer('rental_duration');
-            $table->dateTime('return_date');
-            $table->string('status', 20);
-            $table->boolean('is_due');
+            $table->dateTime('return_date')->nullable();
+            $table->string('status', 20)->default("borrowed"); // borrowed, returned
+            $table->boolean('is_due')->default(false);
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
 
@@ -34,7 +34,6 @@ class CreateRentalsTable extends Migration
                 ->references('id')
                 ->on('books')
                 ->onDelete('cascade');
-
         });
     }
 
