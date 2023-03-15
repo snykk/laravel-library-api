@@ -100,17 +100,33 @@ class RentalsController extends Controller
             // get book 
             $book = Book::where('id', $rental->book_id)->first();
 
+            // check if book is available
             if ($book->available === 0) {
                 return response()->json([
                     "message" => "book is not available right now!!!",
                 ], 200);
             }
 
+            // check if user has already rented this book
+            $rental = Rental::where('user_id', auth()->user()->id)
+                ->where('book_id', $rental->book_id)
+                ->first();
+
+            if ($rental) {
+                return response()->json([
+                    "message" => "the user has already rented this book.",
+                ], 400);
+            }
+
+            // fill new rental data 
             $rental->user_id = auth()->user()->id;
             $rental->rental_date = Carbon::now('Asia/Jakarta');
             $rental->rental_duration = 7;
-            $rental->status = "borrowed";
+            $rental->status = Rental::STATUS_BORROWED;
             $rental->save();
+
+            $book->available -= 1;
+            $book->save();
 
             DB::commit();
 
