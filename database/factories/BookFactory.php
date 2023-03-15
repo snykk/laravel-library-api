@@ -31,6 +31,7 @@ class BookFactory extends Factory
             'title' => $this->faker->text(rand(25, 50)),
             'description' => $this->faker->paragraph(5),
             'rating' => 0,
+            'available' => rand(1, 100),
         ];
     }
 }

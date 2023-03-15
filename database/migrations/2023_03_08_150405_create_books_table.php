@@ -20,6 +20,7 @@ class CreateBooksTable extends Migration
             $table->unsignedDecimal('rating');
             $table->bigInteger('author_id')->unsigned();
             $table->bigInteger('publisher_id')->unsigned();
+            $table->integer("available")->unsigned();
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
 
