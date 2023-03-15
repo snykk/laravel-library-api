@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RentalSaveRequest;
 use App\Http\Resources\RentalCollection;
 use App\Http\Resources\RentalResource;
+use App\Jobs\OverDueRentalJob;
+use App\Mail\RentalCreateEmailNotification;
 use App\Models\Book;
 use App\Models\Rental;
 use App\QueryBuilders\RentalBuilder;
@@ -12,7 +14,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Mail;
 
 /**
  * @group Rental Management
@@ -108,11 +110,11 @@ class RentalsController extends Controller
             }
 
             // check if user has already rented this book
-            $rental = Rental::where('user_id', auth()->user()->id)
+            $dummyRent = Rental::where('user_id', auth()->user()->id)
                 ->where('book_id', $rental->book_id)
                 ->first();
 
-            if ($rental) {
+            if ($dummyRent) {
                 return response()->json([
                     "message" => "the user has already rented this book.",
                 ], 400);
@@ -125,6 +127,7 @@ class RentalsController extends Controller
             $rental->status = Rental::STATUS_BORROWED;
             $rental->save();
 
+            // decrement book count
             $book->available -= 1;
             $book->save();
 
@@ -133,11 +136,19 @@ class RentalsController extends Controller
             $resource = (new RentalResource($rental))
                 ->additional(['info' => 'The new rental has been saved.']);
 
+            // send email notification to user when successfully create a new rental
+            dispatch(function () use ($rental) {
+                Mail::to(auth()->user()->email)->send(new RentalCreateEmailNotification($rental->load("book")->load("user")));
+            });
+
+            // create a job with delay 7 days
+            dispatch(new OverDueRentalJob($rental->id))->delay(now()->addDay(7));
+
             return $resource->toResponse($request)->setStatusCode(201);
         } catch (Exception $e) {
             DB::rollback();
             return response()->json([
-                "message" => "an error occure when try to delete a reviews",
+                "message" => "an error occure when try to create a reviews",
                 "errors" => $e->getMessage(),
             ], 500);
         }
