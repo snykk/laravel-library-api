@@ -15,11 +15,11 @@ class Rental extends Model
 
     const STATUS_RETURNED = "returned";
 
-    const STATUS_OVERDUE = "overdue";
+    const STATUS_BORROWED = "borrowed";
 
     const STATUS_ENUM = [
         self::STATUS_RETURNED,
-        self::STATUS_OVERDUE,
+        self::STATUS_BORROWED,
     ];
 
 
