@@ -18,6 +18,7 @@ Route::prefix("/auth")->group(function () {
   Route::post("/logout", "AuthController@login")->middleware("auth:santcum");
 });
 
+Route::apiResource('/users', 'UsersController')->only(["index", "show"]);
 Route::apiResource('/books', 'BooksController');
 Route::apiResource('/authors', 'AuthorsController');
 Route::apiResource('/publishers', 'PublishersController');
