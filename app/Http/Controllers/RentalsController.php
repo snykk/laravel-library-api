@@ -131,6 +131,11 @@ class RentalsController extends Controller
             $book->available -= 1;
             $book->save();
 
+            // Increment the "rentals" column by 1
+            $user = auth()->user();
+            $user->rentals += 1;
+            $user->save();
+
             DB::commit();
 
             $resource = (new RentalResource($rental))
@@ -205,11 +210,18 @@ class RentalsController extends Controller
                 // ... fee charge logic.. soon
             }
 
+            // increment book count
             $book = Book::where('id', $rental->book_id)->first();
-            $book->available += 1;
+            $book->available -= 1;
             $book->save();
 
+            // save rental data to db
             $rental->save();
+
+            // change rental users
+            $user = auth()->user();
+            $user->rentals += 1;
+            $user->save();
 
             DB::commit();
 
