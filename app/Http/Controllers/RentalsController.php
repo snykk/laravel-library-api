@@ -148,7 +148,69 @@ class RentalsController extends Controller
         } catch (Exception $e) {
             DB::rollback();
             return response()->json([
-                "message" => "an error occure when try to create a reviews",
+                "message" => "an error occure when try to create a rentals",
+                "errors" => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Return Books.
+     * Update Rentals Resource.
+     *
+     * @authenticated
+     *
+     * @param \App\Http\Requests\RentalSaveRequest $request
+     * @param \App\Models\Rental $rental
+     *
+     * @return JsonResponse
+     */
+    public function return(RentalSaveRequest $request): JsonResponse
+    {
+        DB::beginTransaction();
+
+        try {
+            $rental = Rental::where('book_id', $request->book_id)->where("user_id", auth()->user()->id)->first();
+            // dd($rental);
+
+            if (!$rental) {
+                return response()->json([
+                    "message" => "you have no rental this book yet",
+                ], 400);
+            }
+
+            $now = Carbon::now('Asia/Jakarta');
+            $rentalDate = Carbon::parse($rental->rental_date, 'Asia/Jakarta');
+            $due_date = $rentalDate->copy()->addDays($rental->rental_duration);
+
+            $rental->status = Rental::STATUS_RETURNED;
+            $rental->return_date = $now;
+
+            $msg = [
+                'info' => 'The book has been returned successfully'
+            ];
+
+            if ($now->gt($due_date)) {
+                $rental->is_due = true;
+
+                $msg['alert'] = "Your rental period has ended, and to complete the process, you must pay the late fee charges.";
+                $msg["due_date"] = $due_date;
+
+                // ... fee charge logic.. soon
+            }
+
+            $rental->save();
+
+            DB::commit();
+
+            $resource = (new RentalResource($rental))
+                ->additional($msg);
+
+            return $resource->toResponse($request)->setStatusCode(200);
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json([
+                "message" => "an error occure when try to return a book",
                 "errors" => $e->getMessage(),
             ], 500);
         }
