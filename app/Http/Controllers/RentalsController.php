@@ -179,6 +179,12 @@ class RentalsController extends Controller
                 ], 400);
             }
 
+            if ($rental->status === Rental::STATUS_RETURNED) {
+                return response()->json([
+                    "message" => "you have already returned this book",
+                ], 400);
+            }
+
             $now = Carbon::now('Asia/Jakarta');
             $rentalDate = Carbon::parse($rental->rental_date, 'Asia/Jakarta');
             $due_date = $rentalDate->copy()->addDays($rental->rental_duration);
@@ -194,10 +200,14 @@ class RentalsController extends Controller
                 $rental->is_due = true;
 
                 $msg['alert'] = "Your rental period has ended, and to complete the process, you must pay the late fee charges.";
-                $msg["due_date"] = $due_date;
+                $msg["due_date"] = $due_date->format('Y-m-d h:i A');
 
                 // ... fee charge logic.. soon
             }
+
+            $book = Book::where('id', $rental->book_id)->first();
+            $book->available += 1;
+            $book->save();
 
             $rental->save();
 
